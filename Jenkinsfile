@@ -30,7 +30,7 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage('Sonarqube Analysis') {
             steps {
                 withSonarQubeEnv('sonarqube-server') {
                     withCredentials([string(credentialsId: 'jenkins-sonarqube-token', variable: 'SONAR_TOKEN')]) {
