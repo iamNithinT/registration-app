@@ -75,7 +75,6 @@ pipeline {
         stage("Nexus Artifact Upload") {
             steps {
                 nexusArtifactUploader artifacts: [[artifactId: 'webapp', classifier: '', file: 'webapp/target/webapp.war', type: 'war']], credentialsId: 'nexus-credentials', groupId: 'com.example.maven-project', nexusUrl: '3.110.182.123:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'maven-snapshots', version: '1.0-SNAPSHOT'
-                )
             }
         }
 
