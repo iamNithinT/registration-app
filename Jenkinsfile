@@ -113,12 +113,14 @@ pipeline {
 
         stage("Trivy Image Scan") {
             steps {
-                sh """
-                    trivy image --severity HIGH,CRITICAL \
-                    --format table \
-                    --output trivy-report.txt \
-                    ${ECR_URI}:${IMAGE_TAG}
-                """
+                withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
+                    sh """
+                        trivy image --severity HIGH,CRITICAL \
+                        --format table \
+                        --output trivy-report.txt \
+                        ${ECR_URI}:${IMAGE_TAG}
+                    """
+                }
                 archiveArtifacts artifacts: 'trivy-report.txt', allowEmptyArchive: true
             }
         }
