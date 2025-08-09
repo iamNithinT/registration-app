@@ -14,11 +14,11 @@ pipeline {
 
         stage("Checkout from SCM") {
             steps {
-                git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/nithin302001/registration-app.git'
+                git branch: 'main', credentialsId: 'github-token',
+                url: 'https://github.com/nithin302001/registration-app.git'
             }
         }
 
-        
         stage("Clean Targetfolder and Compile") {
             steps {
                 sh "mvn clean compile"
@@ -31,7 +31,7 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+        stage("SonarQube Analysis") {
             steps {
                 withSonarQubeEnv('sonarqube-server') {
                     withCredentials([string(credentialsId: 'jenkins-sonarqube-token', variable: 'SONAR_TOKEN')]) {
@@ -45,26 +45,45 @@ pipeline {
                 }
             }
         }
-        stage("Quality Gates"){
-            steps{
+
+        stage("Quality Gates") {
+            steps {
                 script {
                     waitForQualityGate abortPipeline: false, credentialsId: 'jenkins-sonarqube-token'
                 }
             }
         }
+
         stage("Packaging Application") {
             steps {
-                sh "mvn package" 
+                sh "mvn package"
             }
         }
+
         stage("OWASP Dependency-Check") {
-            steps{
+            steps {
                 dependencyCheck additionalArguments: '', nvdCredentialsId: 'nvd-api-key', odcInstallation: 'OWASP', stopBuild: true
             }
         }
+
         stage("Nexus Artifact Upload") {
-            steps{
-                nexusArtifactUploader artifacts: [[artifactId: 'webapp', classifier: '', file: 'webapp/target/webapp.war', type: 'war']], credentialsId: 'nexus-credentials', groupId: 'com.example.maven-project', nexusUrl: '3.110.182.123:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'maven-snapshots', version: '1.0-SNAPSHOT'
+            steps {
+                script {
+                    def readPomVersion = readMavenPom file: 'pom.xml'
+                    nexusArtifactUploader artifacts: [[
+                        artifactId: 'webapp',
+                        classifier: '',
+                        file: 'webapp/target/webapp.war',
+                        type: 'war'
+                    ]],
+                    credentialsId: 'nexus-credentials',
+                    groupId: 'com.example.maven-project',
+                    nexusUrl: '3.110.182.123:8081',
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    repository: 'maven-snapshots',
+                    version: "${readPomVersion.version}"
+                }
             }
         }
     }
