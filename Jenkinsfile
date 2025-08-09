@@ -1,5 +1,6 @@
 pipeline {
     agent { label 'jenkinsslave' }
+    
     tools {
         jdk 'Java17'
         maven 'Maven3'
@@ -8,7 +9,7 @@ pipeline {
     environment {
         AWS_REGION = 'ap-south-1'
         ECR_REPO_NAME = 'project-k'        
-        IMAGE_TAG = '1.0-SNAPSHOT'
+        IMAGE_TAG = "${BUILD_NUMBER}"
         ECR_URI = "965656372503.dkr.ecr.ap-south-1.amazonaws.com/project-k"
     }
 
@@ -25,7 +26,7 @@ pipeline {
             }
         }
 
-        stage("Clean Targetfolder and Compile") {
+        stage("Clean Target Folder and Compile") {
             steps {
                 sh "mvn clean compile"
             }
@@ -74,8 +75,21 @@ pipeline {
 
         stage("Nexus Artifact Upload") {
             steps {
-                nexusArtifactUploader( artifacts: [[artifactId: 'webapp', classifier: '', file: 'webapp/target/webapp.war', type: 'war']], credentialsId: 'nexus-credentials', groupId: 'com.example.maven-project', nexusUrl: '3.110.182.123:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'maven-snapshots', version: '1.0-SNAPSHOT')
-                
+                nexusArtifactUploader(
+                    artifacts: [[
+                        artifactId: 'webapp',
+                        classifier: '',
+                        file: 'webapp/target/webapp.war',
+                        type: 'war'
+                    ]],
+                    credentialsId: 'nexus-credentials',
+                    groupId: 'com.example.maven-project',
+                    nexusUrl: '3.110.182.123:8081',
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    repository: 'maven-snapshots',
+                    version: '1.0-SNAPSHOT'
+                )
             }
         }
 
@@ -89,11 +103,23 @@ pipeline {
             steps {
                 withAWS(credentials: 'aws-credentials', region: "${AWS_REGION}") {
                     sh """
-                      aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URI}
-                      docker tag ${ECR_REPO_NAME}:${IMAGE_TAG} ${ECR_URI}:${IMAGE_TAG}
-                      docker push ${ECR_URI}:${IMAGE_TAG}
+                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URI}
+                        docker tag ${ECR_REPO_NAME}:${IMAGE_TAG} ${ECR_URI}:${IMAGE_TAG}
+                        docker push ${ECR_URI}:${IMAGE_TAG}
                     """
                 }
+            }
+        }
+
+        stage("Trivy Image Scan") {
+            steps {
+                sh """
+                    trivy image --severity HIGH,CRITICAL \
+                    --format table \
+                    --output trivy-report.txt \
+                    ${ECR_URI}:${IMAGE_TAG}
+                """
+                archiveArtifacts artifacts: 'trivy-report.txt', allowEmptyArchive: true
             }
         }
     }
