@@ -18,17 +18,14 @@ pipeline {
             }
         }
 
-        stage("Build Application") {
+        
+        stage("Unit Test & Build Application") {
             steps {
                 sh "mvn clean package"
             }
         }
 
-        stage("Test Application") {
-            steps {
-                sh "mvn test"
-            }
-        }
+        
 
         stage('SonarQube Analysis') {
             steps {
