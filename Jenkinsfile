@@ -59,7 +59,7 @@ pipeline {
         }
         stage("OWASP Dependency-Check") {
             steps{
-                dependencyCheck additionalArguments: '', odcInstallation: 'OWASP', stopBuild: true
+                dependencyCheck additionalArguments: '', nvdCredentialsId: 'nvd-api-key', odcInstallation: 'OWASP', stopBuild: true
             }
         }
     }
