@@ -39,7 +39,7 @@ pipeline {
                             mvn clean verify sonar:sonar \
                             -Dsonar.projectKey=registration-app \
                             -Dsonar.projectName='registration-app' \
-                            -Dsonar.host.url=http://172.31.36.129:9000 \
+                            -Dsonar.host.url=http://172.31.8.50:9000 \
                             -Dsonar.login=$SONAR_TOKEN
                         """
                     }
@@ -77,7 +77,7 @@ pipeline {
                     nexusArtifactUploader(
                         nexusVersion: 'nexus3',
                         protocol: 'http',
-                        nexusUrl: '172.31.36.129:8081',
+                        nexusUrl: '172.31.8.50:8081',
                         repository: 'maven-snapshots',
                         credentialsId: 'nexus-credentials',
                         groupId: pom.groupId,
@@ -92,7 +92,7 @@ pipeline {
                     nexusArtifactUploader(
                         nexusVersion: 'nexus3',
                         protocol: 'http',
-                        nexusUrl: '172.31.36.129:8081',
+                        nexusUrl: '172.31.8.50:8081',
                         repository: 'maven-snapshots',
                         credentialsId: 'nexus-credentials',
                         groupId: pom.groupId,
