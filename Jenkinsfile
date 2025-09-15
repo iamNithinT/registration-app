@@ -166,8 +166,8 @@ pipeline {
             
                     // Commit and push the update (optional)
                     sh """
-                        git config user.email "ci@yourcompany.com"
-                        git config user.name "Jenkins CI"
+                        git config user.email "Nithin.devops@gmail.com"
+                        git config user.name "Nithin_devops"
                         git add ${deploymentFile}
                         if ! git diff --cached --quiet; then
                             git commit -m "Update deployment image tag to ${imageTag}"
