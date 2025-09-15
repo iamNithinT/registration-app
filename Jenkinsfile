@@ -161,7 +161,7 @@ pipeline {
             
                     // Replace the existing image line with new image tag (matches line starting with "image:")
                     sh """
-                        sed -i 's#^\\s*image:.*#        image: ${imageTag}#' ${deploymentFile}
+                        sed -i "s|image:.*|        image: ${imageTag}|g" ${deploymentFile}
                     """
             
                     // Commit and push the update (optional)
