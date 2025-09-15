@@ -70,7 +70,7 @@ pipeline {
                     nexusArtifactUploader(
                         nexusVersion: 'nexus3',
                         protocol: 'http',
-                        nexusUrl: '3.110.182.123:8081',
+                        nexusUrl: '172.31.36.129:8081',
                         repository: 'maven-snapshots',
                         credentialsId: 'nexus-credentials',
                         groupId: 'com.example.maven-project',
@@ -86,7 +86,7 @@ pipeline {
                     nexusArtifactUploader(
                         nexusVersion: 'nexus3',
                         protocol: 'http',
-                        nexusUrl: '3.110.182.123:8081',
+                        nexusUrl: '172.31.36.129:8081',
                         repository: 'maven-snapshots',
                         credentialsId: 'nexus-credentials',
                         groupId: 'com.example.maven-project',
