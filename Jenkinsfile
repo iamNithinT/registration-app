@@ -151,7 +151,7 @@ pipeline {
                 }
             }
         }
-        stage('Update deployment.yml with new image tag') {
+        stage('Update deployment.yml') {
             steps {
                 script {
                     def deploymentFile = 'kubernetes/deployment.yml'  // Adjust to your actual path if different
