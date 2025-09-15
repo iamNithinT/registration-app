@@ -151,5 +151,34 @@ pipeline {
                 }
             }
         }
+        stage('Update deployment.yml with new image tag') {
+            steps {
+                script {
+                    def deploymentFile = 'kubernetes/deployment.yml'  // Path to your deployment file
+                    def imageTag = "${env.DOCKER_IMAGE}"
+            
+                    echo "Updating deployment file ${deploymentFile} with Docker image tag ${imageTag}"
+            
+                    // Replace the image line in deployment.yml with the new docker image tag
+                    sh """
+                        sed -i 's#image: .*#image: ${imageTag}#' ${deploymentFile}
+                    """
+            
+                    // Commit and push the changes back to the repo (optional)
+                    sh """
+                        git config user.email "jenkins@example.com"
+                        git config user.name "Jenkins CI"
+                
+                        git add ${deploymentFile}
+                        if ! git diff --cached --quiet; then
+                          git commit -m "Update deployment image tag to ${imageTag}"
+                          git push origin main
+                        else
+                          echo "No changes detected in ${deploymentFile}, skipping commit."
+                        fi
+                    """
+                }
+            }
+        }
     }
 }
