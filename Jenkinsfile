@@ -151,33 +151,35 @@ pipeline {
                 }
             }
         }
-        stage('Update deployment.yml') {
+        stage('Update deployment.yml with new image tag') {
             steps {
                 script {
-                    def deploymentFile = 'kubernetes/deployment.yml'  // Adjust to your actual path if different
-                    def imageTag = "${env.DOCKER_IMAGE}"               // e.g., nithinnito/registration-app:12345
-            
+                    def deploymentFile = 'kubernetes/deployment.yml'
+                    def imageTag = "${env.DOCKER_IMAGE}"
+
                     echo "Updating deployment.yml with image: ${imageTag}"
-            
-                    // Replace the existing image line with new image tag (matches line starting with "image:")
+
+                    // Update image tag in deployment.yml
                     sh """
                         sed -i "s|image:.*|        image: ${imageTag}|g" ${deploymentFile}
                     """
-            
-                    // Commit and push the update (optional)
-                    sh """
-                        git config user.email "Nithin.devops@gmail.com"
-                        git config user.name "Nithin_devops"
-                        git add ${deploymentFile}
-                        if ! git diff --cached --quiet; then
-                            git commit -m "Update deployment image tag to ${imageTag}"
-                            git push origin main
-                        else
-                            echo "No changes detected, skipping commit."
-                        fi
-                    """
+
+                    // Commit & push updated file using stored credentials
+                    withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                        sh """
+                            git config user.email "Nithin.devops@gmail.com"
+                            git config user.name "Nithin_devops"
+                            git add ${deploymentFile}
+                            if ! git diff --cached --quiet; then
+                                git commit -m "Update deployment image tag to ${imageTag}"
+                                git push https://${GIT_USER}:${GIT_TOKEN}@github.com/iamNithinT/registration-app.git
+                            else
+                                echo "No changes detected, skipping commit."
+                            fi
+                        """
+                    }
                 }
             }
-        }
+        }  
     }
 }
