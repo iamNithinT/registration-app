@@ -66,15 +66,21 @@ pipeline {
         stage('Nexus Artifact Upload') {
             steps {
                 script {
+                    // Read Maven POM to get groupId and base version
+                    def pom = readMavenPom file: 'pom.xml'
+
+                    // Create dynamic version by appending build number to base version
+                    def dynamicVersion = "${pom.version}-${env.BUILD_NUMBER}"
+
                     // Upload server module artifact
                     nexusArtifactUploader(
                         nexusVersion: 'nexus3',
                         protocol: 'http',
-                        nexusUrl: '172.31.36.129:8081',
+                        nexusUrl: '3.110.182.123:8081',
                         repository: 'maven-snapshots',
                         credentialsId: 'nexus-credentials',
-                        groupId: 'com.example.maven-project',
-                        version: '1.0-SNAPSHOT',
+                        groupId: pom.groupId,
+                        version: dynamicVersion,
                         artifacts: [[
                             artifactId: 'server',
                             classifier: '',
@@ -82,15 +88,16 @@ pipeline {
                             type: 'jar'
                         ]]
                     )
+
                     // Upload webapp module artifact
                     nexusArtifactUploader(
                         nexusVersion: 'nexus3',
                         protocol: 'http',
-                        nexusUrl: '172.31.36.129:8081',
+                        nexusUrl: '3.110.182.123:8081',
                         repository: 'maven-snapshots',
                         credentialsId: 'nexus-credentials',
-                        groupId: 'com.example.maven-project',
-                        version: '1.0-SNAPSHOT',
+                        groupId: pom.groupId,
+                        version: dynamicVersion,
                         artifacts: [[
                             artifactId: 'webapp',
                             classifier: '',
@@ -100,6 +107,6 @@ pipeline {
                     )
                 }
             }
-        }
+        }  
     }
 }
