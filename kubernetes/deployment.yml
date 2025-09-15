@@ -17,8 +17,8 @@ spec:
         app: regapp
     spec:
       containers:
-      - name: regapp
-        image: ashfaque9x/regapp
+      - name: registration-app
+        image: nithinnito/registration-app
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
