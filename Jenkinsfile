@@ -1,13 +1,9 @@
-15/09/2025
-
-
-
 pipeline {
-    agent { label 'jenkinsslave' }
+    agent { label 'Jenkins-Agent' }
     
     tools {
         jdk 'Java17'
-        maven 'Maven3'
+        maven 'Maven'
     }
 
     stages {
@@ -36,7 +32,3 @@ pipeline {
         }
     }  
 }
-
-
-
-
