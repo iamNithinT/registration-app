@@ -63,5 +63,43 @@ pipeline {
                 dependencyCheck additionalArguments: '', nvdCredentialsId: 'nvd-api-key', odcInstallation: 'OWASP-Dependency-Check', stopBuild: true
             }
         }
+        stage('Nexus Artifact Upload') {
+            steps {
+                script {
+                    // Upload server module artifact
+                    nexusArtifactUploader(
+                        nexusVersion: 'nexus3',
+                        protocol: 'http',
+                        nexusUrl: '3.110.182.123:8081',
+                        repository: 'maven-snapshots',
+                        credentialsId: 'nexus-credentials',
+                        groupId: 'com.example.maven-project',
+                        version: '1.0-SNAPSHOT',
+                        artifacts: [[
+                            artifactId: 'server',
+                            classifier: '',
+                            file: 'server/target/server.jar',
+                            type: 'jar'
+                        ]]
+                    )
+                    // Upload webapp module artifact
+                    nexusArtifactUploader(
+                        nexusVersion: 'nexus3',
+                        protocol: 'http',
+                        nexusUrl: '3.110.182.123:8081',
+                        repository: 'maven-snapshots',
+                        credentialsId: 'nexus-credentials',
+                        groupId: 'com.example.maven-project',
+                        version: '1.0-SNAPSHOT',
+                        artifacts: [[
+                            artifactId: 'webapp',
+                            classifier: '',
+                            file: 'webapp/target/webapp.war',
+                            type: 'war'
+                        ]]
+                    )
+                }
+            }
+        }
     }
 }
