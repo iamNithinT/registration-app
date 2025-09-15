@@ -39,7 +39,7 @@ pipeline {
                             mvn clean verify sonar:sonar \
                             -Dsonar.projectKey=registration-app \
                             -Dsonar.projectName='registration-app' \
-                            -Dsonar.host.url=http://3.110.212.88:9000 \
+                            -Dsonar.host.url=http://172.31.36.129:9000 \
                             -Dsonar.login=$SONAR_TOKEN
                         """
                     }
