@@ -58,5 +58,10 @@ pipeline {
                 sh "mvn package"
             }
         }
+        stage("OWASP Dependency-Check") {
+            steps {
+                dependencyCheck additionalArguments: '--scan ./', nvdCredentialsId: 'nvd-api-key', odcInstallation: 'OWASP Dependency-Check', stopBuild: true
+            }
+        }
     }
 }
