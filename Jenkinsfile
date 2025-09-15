@@ -5,6 +5,10 @@ pipeline {
         jdk 'Java17'
         maven 'Maven'
     }
+     environment {
+        DOCKER_IMAGE = "nithinnito/registration-app:${env.BUILD_NUMBER}"
+        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'  // Jenkins credentials ID for Docker Hub
+    }
     
     stages {
         stage("Cleanup Workspace") {
@@ -103,6 +107,29 @@ pipeline {
                             type: 'war'
                         ]]
                     )
+                }
+            }
+        }
+        stage('Docker Build, Login & Push') {
+            steps {
+                script {
+                    def imageTag = "${env.DOCKER_IMAGE}"
+                    echo "Cleaning up any existing Docker image: ${imageTag}"
+                    sh "docker rmi ${imageTag} || true"
+            
+                    echo "Building and pushing Docker image: ${imageTag}"
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                        sh """
+                            # Login to Docker Hub
+                            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    
+                            # Build Docker image
+                            docker build -t ${imageTag} .
+                    
+                            # Push Docker image to Docker Hub
+                            docker push ${imageTag}
+                        """
+                    }
                 }
             }
         }
