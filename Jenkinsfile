@@ -52,6 +52,11 @@ pipeline {
                     waitForQualityGate abortPipeline: true, credentialsId: 'jenkins-sonarqube-token'
                 }
             }
-        }    
+        }
+        stage("Packaging Application") {
+            steps {
+                sh "mvn package"
+            }
+        }
     }
 }
