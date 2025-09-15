@@ -110,7 +110,7 @@ pipeline {
                 }
             }
         }
-        stage('Docker Build, Login & Push') {
+        stage('Docker Image Build & Push') {
             steps {
                 script {
                     def imageTag = "${env.DOCKER_IMAGE}"
@@ -130,6 +130,19 @@ pipeline {
                             docker push ${imageTag}
                         """
                     }
+                }
+            }
+        }
+        stage('Docker Image Vulnerability Scan (Trivy)') {
+            steps {
+                script {
+                    def imageTag = "${env.DOCKER_IMAGE}"
+                    echo "Scanning Docker image with Trivy: ${imageTag}"
+
+                    // Run Trivy scan - fail build on HIGH or CRITICAL vulnerabilities
+                    sh """
+                        trivy image --exit-code 1 --severity HIGH,CRITICAL ${imageTag} || true
+                    """
                 }
             }
         }
