@@ -66,13 +66,14 @@ pipeline {
         stage('Nexus Artifact Upload') {
             steps {
                 script {
-                    // Read Maven POM to get groupId and base version
                     def pom = readMavenPom file: 'pom.xml'
 
-                    // Create dynamic version by appending build number to base version
-                    def dynamicVersion = "${pom.version}-${env.BUILD_NUMBER}"
+                    // Ensure SNAPSHOT is preserved at the end
+                    def baseVersion = pom.version.replace('-SNAPSHOT','')
+                    def dynamicVersion = "${baseVersion}-${env.BUILD_NUMBER}-SNAPSHOT"
 
-                    // Upload server module artifact
+                    echo "Uploading artifacts with version: ${dynamicVersion}"
+
                     nexusArtifactUploader(
                         nexusVersion: 'nexus3',
                         protocol: 'http',
@@ -83,13 +84,11 @@ pipeline {
                         version: dynamicVersion,
                         artifacts: [[
                             artifactId: 'server',
-                            classifier: '',
                             file: 'server/target/server.jar',
                             type: 'jar'
                         ]]
                     )
 
-                    // Upload webapp module artifact
                     nexusArtifactUploader(
                         nexusVersion: 'nexus3',
                         protocol: 'http',
@@ -100,13 +99,12 @@ pipeline {
                         version: dynamicVersion,
                         artifacts: [[
                             artifactId: 'webapp',
-                            classifier: '',
                             file: 'webapp/target/webapp.war',
                             type: 'war'
                         ]]
                     )
                 }
             }
-        }  
+        }
     }
 }
