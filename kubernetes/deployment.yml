@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: registration-app
-        image: nithinnito/registration-app:9
+                image: nithinnito/registration-app:10
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
