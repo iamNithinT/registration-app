@@ -77,6 +77,34 @@ pipeline {
             }
         }
 
+        stage("Packaging Application") {
+            steps {
+                sh "mvn package"
+            }
+        }
+
+        
+        stage("Prepare WAR for Docker build") {
+            steps {
+                sh "cp webapp/target/webapp.war ./"
+                sh "mv webapp.war ROOT.war"
+            }
+        }
+
+        stage('Docker Image Build & Push') {
+            steps {
+                script {
+                    def imageTag = "${env.DOCKER_IMAGE}"
+                    echo "Removing any existing Docker image: ${imageTag}"
+                    sh "docker rmi ${imageTag} || true"
+                    echo "Building Docker image: ${imageTag}"
+                    sh "docker build -t ${imageTag} ."
+                    // ...push logic continues
+                }
+            }
+        }
+
+
         stage('Nexus Artifact Upload') {
             steps {
                 script {
