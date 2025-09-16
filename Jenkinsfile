@@ -65,6 +65,8 @@ pipeline {
         stage("Packaging Application") {
             steps {
                 sh "mvn package"
+                sh "cp webapp/target/webapp.war ./"
+                sh "mv webapp.war ROOT.war"
             }
         }
 
@@ -74,33 +76,6 @@ pipeline {
                                 nvdCredentialsId: 'nvd-api-key',
                                 odcInstallation: 'OWASP-Dependency-Check',
                                 stopBuild: true
-            }
-        }
-
-        stage("Packaging Application") {
-            steps {
-                sh "mvn package"
-            }
-        }
-
-        
-        stage("Prepare WAR for Docker build") {
-            steps {
-                sh "cp webapp/target/webapp.war ./"
-                sh "mv webapp.war ROOT.war"
-            }
-        }
-
-        stage('Docker Image Build & Push') {
-            steps {
-                script {
-                    def imageTag = "${env.DOCKER_IMAGE}"
-                    echo "Removing any existing Docker image: ${imageTag}"
-                    sh "docker rmi ${imageTag} || true"
-                    echo "Building Docker image: ${imageTag}"
-                    sh "docker build -t ${imageTag} ."
-                    // ...push logic continues
-                }
             }
         }
 
@@ -149,6 +124,7 @@ pipeline {
         stage('Docker Image Build, & Push') {
             steps {
                 script {
+
                     def imageTag = "${env.DOCKER_IMAGE}"
 
                     echo "Removing any existing Docker image: ${imageTag}"
