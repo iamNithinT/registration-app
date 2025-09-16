@@ -165,7 +165,7 @@ pipeline {
                     """
 
                     // Commit & push updated file using stored credentials
-                    withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                    withCredentials([usernamePassword(credentialsId: 'Github', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                         sh """
                             git config user.email "Nithin.devops@gmail.com"
                             git config user.name "Nithin_devops"
