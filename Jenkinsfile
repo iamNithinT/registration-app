@@ -155,28 +155,30 @@ pipeline {
             steps {
                 script {
                     def deploymentFile = 'kubernetes/deployment.yml'
-                    def imageTag = "${env.DOCKER_IMAGE}"
+                    def imageTag = "${env.DOCKER_IMAGE}"  // Ensure DOCKER_IMAGE is defined earlier
 
                     echo "Updating deployment.yml with image: ${imageTag}"
 
-                    // Safely update image tag in deployment.yml using sed
+                    // Update image tag in deployment.yml while preserving indentation
                     sh """
-                        sed -i -E 's|^([[:space:]]*)image:.*\$|\\1image: ${imageTag}|' ${deploymentFile}
+                        awk '/image:/ && !found {
+                                sub(/image:.*/, "image: ${imageTag}");
+                                found=1
+                             }
+                             { print }' ${deploymentFile} > tmpfile && mv tmpfile ${deploymentFile}
                     """
 
-                    // Commit & push updated file using GitHub credentials
+                    // Commit & push updated file using stored GitHub credentials
                     withCredentials([usernamePassword(credentialsId: 'Github', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                         sh """
-                            git config --global user.email "Nithin.devops@gmail.com"
-                            git config --global user.name "Nithin_devops"
-
+                            git config user.email "Nithin.devops@gmail.com"
+                            git config user.name "Nithin_devops"
                             git add ${deploymentFile}
-
                             if ! git diff --cached --quiet; then
                                 git commit -m "Update deployment image tag to ${imageTag}"
-                                git push https://${GIT_USER}:${GIT_TOKEN}@github.com/iamNithinT/registration-app.git HEAD:main
+                                git push https://${GIT_USER}:${GIT_TOKEN}@github.com/iamNithinT/registration-app.git
                             else
-                                echo "No changes detected in deployment file."
+                                echo "No changes detected, skipping commit."
                             fi
                         """
                     }
