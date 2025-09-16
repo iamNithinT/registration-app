@@ -9,6 +9,8 @@ pipeline {
     environment {
         DOCKER_IMAGE = "nithinnito/registration-app:${env.BUILD_NUMBER}"
         DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
+        JENKINS_API_TOKEN = credentials('jenkins-trigger-user-api')
+        
     }
 
     stages {
@@ -188,6 +190,14 @@ pipeline {
                     }
                 }
             }
-        }  
+        }
+        stage("Trigger CD Pipeline") {
+            steps {
+                script {
+                    sh "curl -v -k --user jenkins-trigger-user:${jenkins-trigger-user-api} -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded' --data 'IMAGE_TAG=${IMAGE_TAG}' 'ec2-13-232-86-221.ap-south-1.compute.amazonaws.com:8080/job/Gitops-Registration-App-CD/buildWithParameters?token=gitops-token'"
+                }
+            }
+       }
+
     }
 }
