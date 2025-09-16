@@ -159,23 +159,24 @@ pipeline {
 
                     echo "Updating deployment.yml with image: ${imageTag}"
 
-                    // Update image tag in deployment.yml
+                    // Safely update image tag in deployment.yml using sed
                     sh """
-                        sed -i -E "s|^([[:space:]]*)image:.*$|\1image: ${imageTag}|g" kubernetes/deployment.yml
-
+                        sed -i -E 's|^([[:space:]]*)image:.*\$|\\1image: ${imageTag}|' ${deploymentFile}
                     """
 
-                    // Commit & push updated file using stored credentials
+                    // Commit & push updated file using GitHub credentials
                     withCredentials([usernamePassword(credentialsId: 'Github', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
                         sh """
-                            git config user.email "Nithin.devops@gmail.com"
-                            git config user.name "Nithin_devops"
+                            git config --global user.email "Nithin.devops@gmail.com"
+                            git config --global user.name "Nithin_devops"
+
                             git add ${deploymentFile}
+
                             if ! git diff --cached --quiet; then
                                 git commit -m "Update deployment image tag to ${imageTag}"
-                                git push https://${GIT_USER}:${GIT_TOKEN}@github.com/iamNithinT/registration-app.git
+                                git push https://${GIT_USER}:${GIT_TOKEN}@github.com/iamNithinT/registration-app.git HEAD:main
                             else
-                                echo "No changes detected, skipping commit."
+                                echo "No changes detected in deployment file."
                             fi
                         """
                     }
