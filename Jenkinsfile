@@ -161,7 +161,8 @@ pipeline {
 
                     // Update image tag in deployment.yml
                     sh """
-                        sed -i "s|image:.*|        image: ${imageTag}|g" ${deploymentFile}
+                        sed -i -E "s|^([[:space:]]*)image:.*$|\1image: ${imageTag}|g" kubernetes/deployment.yml
+
                     """
 
                     // Commit & push updated file using stored credentials
