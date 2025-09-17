@@ -16,8 +16,16 @@ pipeline {
         }
         stage("Smoke Test") {
             steps {
-                sh './smoke-test.sh'
+                sh './scripts/smoke-test.sh'
             }
+        }
+    }
+    post {
+        success {
+            slackSend channel: '#jenkins', color: 'good', message: "Deployment successful! (${env.JOB_NAME} #${env.BUILD_NUMBER})"
+        }
+        failure {
+            slackSend channel: '#jenkins', color: 'danger', message: "Deployment failed! (${env.JOB_NAME} #${env.BUILD_NUMBER})"
         }
     }
 }
