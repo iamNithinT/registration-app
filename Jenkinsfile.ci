@@ -195,7 +195,7 @@ pipeline {
         }
         stage('Trigger CD Pipeline') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'jenkins-trigger-user', usernameVariable: 'USER', passwordVariable: 'TOKEN')]) {
+                withCredentials([usernamePassword(credentialsId: 'jenkins-trigger-user-api', usernameVariable: 'USER', passwordVariable: 'TOKEN')]) {
                     sh """
                         curl -v -k --user $USER:$TOKEN -X POST \\
                         -H 'cache-control: no-cache' \\
