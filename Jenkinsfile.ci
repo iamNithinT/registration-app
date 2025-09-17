@@ -80,6 +80,7 @@ pipeline {
                                 nvdCredentialsId: 'nvd-api-key',
                                 odcInstallation: 'OWASP-Dependency-Check',
                                 stopBuild: true
+                archiveArtifacts artifacts: 'dependency-check-report/**', allowEmptyArchive: true
             }
         }
 
